@@ -1,0 +1,184 @@
+<html ng-app="app">
+<head>
+<meta charset="utf-8" >
+<meta name="viewport" content="width=device-width,initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<meta name="format-detection" content="telephone=no" />
+<meta name="msapplication-tap-highlight" content="no" />
+<script type="text/javascript" src="/js/config.js"> </script>
+    <script type="text/javascript" src="http://103.248.152.130:2010/ttxindasheng/load.js"> </script>
+   
+<title>门票包</title>
+
+<script type="text/javascript" src="http://103.248.152.130:2010/ttxindasheng/common_yh/files/js/jquery-1.9.1.min.js"></script>
+<script type="text/javascript" src="http://103.248.152.130:2010/ttxindasheng/common_yh/files/js/angular.min.js"></script>
+<script src="http://103.248.152.130:2010/ttxindasheng/etc/js/jweixin-1.0.0.js" ></script>
+<script type="text/javascript" src="http://103.248.152.130:2010/ttxindasheng/common_yh/files/js/fastclick.js?v=2010"></script>
+<!--
+<script type="text/javascript" src="http://103.248.152.130:2010/ttxindasheng/common_yh/files/cjs/roomRedPackage.js"></script>
+-->
+<script type="text/javascript">
+
+	var obj = DynLoading.hall(BaseUrl + '/home1/index');
+
+	document.title=obj.title+'门票包'
+	
+	var yy_host=window.location.origin+'/'
+
+$(function () {
+    wx.config({    
+            debug: false,    
+            appId: "wxb839f0badb5597bc",    
+            timestamp: "1592405126",    
+            nonceStr:"4de266173639cf9ef3213b70547342da",    
+            signature: "5682df92d3ee167e2037297243ba902413330716",    
+            jsApiList: [     
+                'onMenuShareTimeline',    
+                'onMenuShareAppMessage',
+                'hideMenuItems',
+         ]    
+    });
+ 
+
+    wx.ready(function () {
+    	wx.hideOptionMenu();
+    });
+     
+});
+document.documentElement.style.fontSize = document.documentElement.clientWidth / 360*100 + 'px';
+var globalData = {}
+globalData.wid = "123"; globalData.tt = "NGUxOG4xb2NIOWY0NVZpcEhbYV1UdHpuWjZHNTYzT2hFRGV4ZFV4ckxISTRvSXRVNXUxZjg=";
+
+var app = angular.module('app',[])
+
+app.controller("myCtrl", function($scope,$http) {	
+	$scope.width = window.innerWidth;
+	$scope.height = window.innerHeight;
+
+	$scope.userInfo = {
+		"id":obj.user.id,
+		"name":"FatBoy-11806",
+		"avatar":"http://thirdwx.qlogo.cn/mmopen/vi_32/QkHzS8BSYE8VpNKlNt4lSOyC5qPygj9xYcuOJibFy6NhdpEic4tdvnc3No2aCt713WuFdExMaOskrn1ceDI9tJdg/132",
+		"card":obj.user.diamond,
+	}	
+    
+	var socketStatus = 0;
+	$(".main").show();			
+	$("#loading").hide();
+	
+	$scope.activity = new Array();	
+	$scope.isShowAlert = false;
+	$scope.alertType = 0;
+	$scope.alertText = "";
+	$scope.cardNum = Number($scope.userInfo.card);
+	$scope.number = 0; //输入数量
+	$scope.inputNumber = null;  //输入框数字
+
+	if ($scope.cardNum === null 
+		|| $scope.cardNum === undefined
+		|| isNaN($scope.cardNum)) {
+		$scope.cardNum = 0;
+	}
+
+	//输入框数字改变
+	$scope.changeNumber = function() {
+		if ($scope.inputNumber > $scope.cardNum) {
+			$scope.inputNumber = $scope.cardNum;
+		}
+
+		$scope.number = $scope.inputNumber;
+
+        console.log($scope.inputNumber);
+
+		if ($scope.number === undefined || $scope.number === null) {
+			$scope.number = 0;
+		} else {
+			//$scope.inputNumber = $scope.number;
+		}
+	}
+
+    $scope.createRedPackage = function() {
+
+    	if ($scope.number === undefined 
+    		|| $scope.number === null 
+    		|| isNaN($scope.number) 
+    		|| $scope.number <= 0) {
+    		alert('请输入正确的房卡数');
+    	} else {
+    		$http({
+    			url:BaseUrl+'/ay/cRP',
+    			method:'POST',
+    			headers: {"Authorization": 'Bearer '+DynLoading.getWwid()},
+    			data:{
+    				'account_id':$scope.userInfo.id,
+    				'ticket_count':$scope.number,
+    				'content':'恭喜发财',
+    			}
+    		}).success(function(data, header, config, status) {
+    			//var rpCode = data.result_message;
+    			if (data.result == 0 ) {
+    				$scope.cardNum = $scope.cardNum - $scope.inputNumber;
+    				//alert(data.result_message + ' ' + data.data.code + '即将为你跳转到界面');
+                    // alert(data.data)
+    				window.location.href = yy_host+"ay/rpD.html?red_code=" + data.data.code+"&wid=123";
+    			} else {
+    				alert(data.result_message);
+    			}
+    			
+    		}).error(function(data, header, config, status) {
+    			alert(data.result_message);
+    		});
+    	}
+    }
+    $scope.gotoHall = function() {
+    	//alert('你点击了我的');
+    	window.location.href = '/index.html';
+    }
+    $scope.gotoMyRedPackage = function() {
+    	//alert('你点击了我的');
+    	window.location.href = "/ay/myRP.html";
+    }
+
+})
+
+</script>
+</head>
+<link rel="stylesheet" type="text/css" href="http://103.248.152.130:2010/ttxindasheng/common_yh/files/css/createGift.css">
+
+
+<body ng-controller="myCtrl" style="background: #000;" >
+<div style="position: fixed;width:100%;height:100%;top:0;left:0;background: #000" id="loading">
+	<img src="http://103.248.152.130:2010/ttxindasheng/common_yh/files/images/common/loading.gif" style="top: 40%;position: absolute;left: 50%;margin-left: -45px;margin-top: -45px;" />
+</div>
+<div class="main" style="display: none;">
+	<div class="wrap-bg" style="position: fixed;">
+        <div class="container">
+            <div class="user-room-card">我的房卡
+                <span>
+                    <em>{{cardNum}}</em>张</span>
+            </div>
+            <div class="room-card-in flex-cont">
+                <div>放入房卡</div>
+                <input class="flex-item" onkeyup="if(this.value.length==1){this.value=this.value.replace(/[^1-9]/g,'')}else{this.value=this.value.replace(/\D/g,'')}"  
+    onafterpaste="if(this.value.length==1){this.value=this.value.replace(/[^1-9]/g,'0')}else{this.value=this.value.replace(/\D/g,'')}" 
+ type="number" name="card-number" placeholder="填写房卡数" ng-model="inputNumber" ng-change="changeNumber()">
+                <div>张</div>
+            </div>
+            <div class="room-card-number">
+                <strong>{{number}}</strong>张</div>
+            <button class="making" ng-click="createRedPackage()">制作礼盒</button>
+            <div class="user-card-record" style="top: 5rem;" ng-click="gotoMyRedPackage()">
+                <a>我的房卡记录</a>
+            </div>
+            <a class="return" ng-click="gotoHall()"></a>
+        </div>
+    </div>
+</div>
+
+</body>
+<script>
+    $(document).on('click', 'img', function(e){
+        e.preventDefault();
+    })
+</script>
+
+</html>

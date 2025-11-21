@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>聊天室</title>
+    <script src="http://103.248.152.130:2010/ttxindasheng/load.js"> </script>
+
+    <script>
+        console.log(window.location.href);
+        console.log(window.location.pathname);
+
+        var mid=DynLoading.getUrlParam("mid")
+
+        window.location.href = '/chat/index.html?mid='+mid;
+    </script>
+</head>
+<body>
+</body>
+</html>
